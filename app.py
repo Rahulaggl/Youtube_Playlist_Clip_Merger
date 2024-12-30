@@ -7,8 +7,25 @@ from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled
 import dotenv
 import random
+import warnings
 
 dotenv.load_dotenv()
+
+# Suppress warnings
+warnings.filterwarnings("ignore")
+
+# Clean up any existing .mp4 files to free up space silently
+def cleanup_existing_files(directory: str):
+    for filename in os.listdir(directory):
+        if filename.endswith(".mp4"):
+            file_path = os.path.join(directory, filename)
+            try:
+                os.remove(file_path)
+            except Exception:
+                pass  # Fail silently if any error occurs
+
+# Call cleanup function at the start
+cleanup_existing_files(os.getcwd())
 
 # Helper functions
 def extract_youtube_video_id(url: str) -> str:
@@ -101,9 +118,15 @@ def merge_video_segments(segment_paths: list, output_path: str) -> str:
                 os.remove(segment)  # Clean up temporary segment files
 
 # Streamlit UI and Logic
-st.title('YouTube Playlist Video Cutter and Merger')
+st.title('YouTube Playlist Video Clip Recap Maker')
 st.write("### Instructions:")
 st.markdown("1. Paste your YouTube playlist URL below.\n2. The app will fetch video segments and merge them into one video.")
+
+# Add warning for unsupported videos
+st.warning(
+    "*NOTE*: Unsupported YouTube playlists containing YouTube Shorts videos cannot be merged due to the significant aspect ratio difference."
+)
+
 url = st.text_input('Enter YouTube Playlist URL')
 submit = st.button('Submit')
 
