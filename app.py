@@ -10,6 +10,16 @@ import random
 
 dotenv.load_dotenv()
 
+# Feature to check and delete existing media files
+def clean_up_existing_mp4():
+    for file in os.listdir('.'):
+        if file.endswith('.mp4'):
+            os.remove(file)
+            print(f"Deleted file: {file}")
+
+# Call cleanup function at the start of the program
+clean_up_existing_mp4()
+
 # Helper functions
 def extract_youtube_video_id(url: str) -> str:
     found = re.search(r"(?:youtu\.be\/|watch\?v=)([\w-]+)", url)
@@ -107,7 +117,7 @@ st.markdown("1. Paste your YouTube playlist URL below.\n2. The app will fetch vi
 
 # Add warning for unsupported videos
 st.warning(
-    "**NOTE**: Unsupported YouTube playlists containing YouTube Shorts videos cannot be merged due to the significant aspect ratio difference."
+    "**NOTE**: 1. Unsupported YouTube playlists containing YouTube Shorts videos cannot be merged because of significant aspect ratio differences.\n2. Recommended to use playlist containing upto 60 Videos"
 )
 
 url = st.text_input('Enter YouTube Playlist URL')
@@ -126,6 +136,9 @@ if submit and url:
                 skipped_videos.append(video_id)
                 continue
             try:
+                transcript = get_video_transcript(video_id)
+                if not transcript:
+                    st.write(f"No transcript found for video {video_id}. Extracting random frame.")
                 segment_path = extract_random_segment(video_path, duration=5)
                 segment_paths.append(segment_path)
             finally:
