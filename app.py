@@ -4,7 +4,7 @@ import os
 import moviepy.editor as mp
 import yt_dlp as ytdlp
 from googleapiclient.discovery import build
-from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled
+from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled, NoTranscriptFound
 import dotenv
 import random
 
@@ -31,10 +31,10 @@ def get_video_transcript(video_id: str):
     try:
         transcript = YouTubeTranscriptApi.get_transcript(video_id, languages=['en'])
         return transcript
-    except TranscriptsDisabled:
+    except (TranscriptsDisabled, NoTranscriptFound):
         return None
     except Exception as e:
-        st.warning(f"Transcript error for video {video_id}: {e}")
+        st.error(f"Error retrieving transcript for video {video_id}: {e}")
         return None
 
 # Fetch video IDs from a playlist
@@ -83,7 +83,7 @@ def download_video(video_id: str):
             ydl.download([url])
             return f'temp_video_{video_id}.mp4'
         except ytdlp.utils.DownloadError as e:
-            st.warning(f"Failed to download video {video_id}: {e}")
+            st.error(f"Failed to download video {video_id}: {e}")
             return None
 
 # Extract a random segment from a video
@@ -147,7 +147,7 @@ if submit and url:
             try:
                 transcript = get_video_transcript(video_id)
                 if not transcript:
-                    st.write(f"No transcript found for video {video_id}. Extracting random frame.")
+                    st.info(f"No transcript found for video {video_id}. Extracting random frame.")
                 segment_path = extract_random_segment(video_path, duration=5)
                 segment_paths.append(segment_path)
             finally:
