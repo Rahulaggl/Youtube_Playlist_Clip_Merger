@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled
 import dotenv
 import random
+import subprocess
 
 dotenv.load_dotenv()
 
@@ -80,6 +81,18 @@ def download_video(video_id: str) -> str | None:
             st.warning(f"Failed to download video {video_id}: {e}")
             return None
 
+def is_valid_video(file_path: str) -> bool:
+    try:
+        result = subprocess.run(
+            ["ffmpeg", "-v", "error", "-i", file_path, "-f", "null", "-"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        return result.returncode == 0
+    except Exception as e:
+        print(f"Validation error for file {file_path}: {e}")
+        return False
+
 def extract_random_segment(video_path: str, duration: int = 5) -> str:
     video_clip = None
     try:
@@ -99,7 +112,13 @@ def extract_random_segment(video_path: str, duration: int = 5) -> str:
 def merge_video_segments(segment_paths: list, output_path: str) -> str:
     video_clips = []
     try:
-        video_clips = [mp.VideoFileClip(segment) for segment in segment_paths]
+        for segment in segment_paths:
+            if not is_valid_video(segment):
+                print(f"Invalid video segment skipped: {segment}")
+                continue
+            video_clips.append(mp.VideoFileClip(segment))
+        if not video_clips:
+            raise ValueError("No valid video segments to merge.")
         final_clip = mp.concatenate_videoclips(video_clips)
         final_clip.write_videofile(output_path, codec='libx264', audio_codec='aac')
         return output_path
@@ -117,7 +136,7 @@ st.markdown("1. Paste your YouTube playlist URL below.\n2. The app will fetch vi
 
 # Add warning for unsupported videos
 st.warning(
-    "**NOTE**: 1. Unsupported YouTube playlists containing YouTube Shorts videos cannot be merged because of significant aspect ratio differences.\n2. Recommended to use playlist containing upto 60 Videos"
+    "**NOTE**: 1. Unsupported YouTube playlists containing YouTube Shorts videos cannot be merged because of significant aspect ratio differences.\n2. Recommended to use playlist containing up to 60 Videos."
 )
 
 url = st.text_input('Enter YouTube Playlist URL')
@@ -147,9 +166,12 @@ if submit and url:
         
         if segment_paths:
             output_path = "final_output_video.mp4"
-            merged_video_path = merge_video_segments(segment_paths, output_path)
-            st.write("Video processing complete!")
-            st.video(merged_video_path)
+            try:
+                merged_video_path = merge_video_segments(segment_paths, output_path)
+                st.write("Video processing complete!")
+                st.video(merged_video_path)
+            except ValueError:
+                st.warning("No valid video segments to merge.")
             if skipped_videos:
                 st.write("Skipped videos (too large or failed to download):")
                 st.write(", ".join(skipped_videos))
