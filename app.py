@@ -139,10 +139,10 @@ for file in os.listdir():
 # Streamlit UI and Logic
 st.title('YouTube Playlist Video Clip Recap Maker')
 
-# Adding the user guide link on the page with the option for users to copy the URL
+# Adding the user guide link as a clickable URL
 st.markdown("### User Guide:")
 user_guide_url = "https://www.youtube.com/playlist?list=PL2iAWPjjTfGE_0AfxfiOTv9wwD-7wkztY"
-st.text_area("Copy the User Guide Link below:", user_guide_url, height=50)
+st.markdown(f"Copy the User Guide Link below:\n\n[Click here for the User Guide]({user_guide_url})")
 
 st.write("### Instructions:")
 st.markdown("1. Paste your YouTube playlist URL below.\n2. The app will fetch video segments and merge them into one video.")
