@@ -3,7 +3,7 @@
 **Access the Project:**
 
 
-1. **Online Access**:  [link](https://youtubeplaylistclipmerger-ipszpkcedglkhzrkfnhrvb.streamlit.app/).
+1. **Online Access**:  [link](https://share.streamlit.io/app/app-yt-clipmerger).
    You can access the project online via the following 
    
 2. **Offline Access**:  
