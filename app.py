@@ -77,9 +77,8 @@ def download_video(video_id: str) -> str | None:
                 os.remove(video_path)  # Delete the Shorts video
                 return None
             return video_path
-        except Exception as e:
-            # Suppressing detailed error messages
-            st.warning(f"Failed to download video {video_id}.")
+        except ytdlp.utils.DownloadError as e:
+            st.warning(f"Failed to download video {video_id}: {e}")
             return None
 
 def extract_random_segment(video_path: str, duration: int = 5) -> str:
@@ -107,7 +106,7 @@ def merge_video_segments(segment_paths: list, output_path: str) -> str:
                 try:
                     video_clips.append(mp.VideoFileClip(segment))
                 except IOError as e:
-                    st.warning(f"Error loading video segment {segment}.")
+                    st.warning(f"Error loading video segment {segment}: {e}")
             else:
                 st.warning(f"Invalid or missing video file: {segment}")
         
@@ -119,7 +118,7 @@ def merge_video_segments(segment_paths: list, output_path: str) -> str:
             st.warning("No valid video clips to merge.")
             return None
     except Exception as e:
-        st.warning("Error merging video segments.")
+        st.warning(f"Error merging video segments: {e}")
         return None
     finally:
         # Ensure all clips are closed after processing
@@ -135,12 +134,14 @@ for file in os.listdir():
         try:
             os.remove(file)  # Deleting old MP4 files to free up space
         except Exception as e:
-            st.warning(f"Error removing file {file}.")
+            st.warning(f"Error removing file {file}: {e}")
 
 # Streamlit UI and Logic
 st.title('YouTube Playlist Video Clip Recap Maker')
 st.write("### Instructions:")
 st.markdown("1. Paste your YouTube playlist URL below.\n2. The app will fetch video segments and merge them into one video.")
+
+# Add warning for unsupported videos
 
 url = st.text_input('Enter YouTube Playlist URL')
 submit = st.button('Submit')
