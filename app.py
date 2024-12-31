@@ -65,7 +65,18 @@ def download_video(video_id: str) -> str | None:
             if video_size and video_size > 500_000_000:  # Skip videos larger than 500MB
                 return None
             ydl.download([url])
-            return f'temp_video_{video_id}.mp4'
+            video_path = f'temp_video_{video_id}.mp4'
+
+            # Check the aspect ratio of the downloaded video
+            video_clip = mp.VideoFileClip(video_path)
+            width, height = video_clip.size
+            video_clip.close()
+
+            # Skip YouTube Shorts (9:16 aspect ratio)
+            if height > width:  # If height is greater than width, it's likely a 9:16 video
+                os.remove(video_path)  # Delete the Shorts video
+                return None
+            return video_path
         except ytdlp.utils.DownloadError as e:
             st.warning(f"Failed to download video {video_id}: {e}")
             return None
@@ -124,6 +135,7 @@ for file in os.listdir():
             os.remove(file)  # Deleting old MP4 files to free up space
         except Exception as e:
             st.warning(f"Error removing file {file}: {e}")
+
 # Streamlit UI and Logic
 st.title('YouTube Playlist Video Clip Recap Maker')
 st.write("### Instructions:")
@@ -131,13 +143,11 @@ st.markdown("1. Paste your YouTube playlist URL below.\n2. The app will fetch vi
 
 # Add warning for unsupported videos
 st.warning(
-    "*NOTE*: Unsupported YouTube playlists containing YouTube Shorts videos cannot be merged due to the significant aspect ratio difference."
+    "*NOTE*: Unsupported YouTube playlists containing YouTube Shorts videos (9:16 aspect ratio) cannot be merged due to the significant aspect ratio difference."
 )
 
 url = st.text_input('Enter YouTube Playlist URL')
 submit = st.button('Submit')
-
-
 
 if submit and url:
     video_ids = get_playlist_video_ids(url)
@@ -164,12 +174,9 @@ if submit and url:
             st.write("Video processing complete!")
             st.video(merged_video_path)
             if skipped_videos:
-                st.write("Skipped videos (too large or failed to download):")
+                st.write("Skipped videos (too large, 9:16 aspect ratio, or failed to download):")
                 st.write(", ".join(skipped_videos))
         else:
             st.warning("No valid segments were processed.")
     else:
         st.warning("No videos found in the playlist URL.")
-
-
-
