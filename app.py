@@ -142,9 +142,6 @@ st.write("### Instructions:")
 st.markdown("1. Paste your YouTube playlist URL below.\n2. The app will fetch video segments and merge them into one video.")
 
 # Add warning for unsupported videos
-st.warning(
-    "*NOTE*: Unsupported YouTube playlists containing YouTube Shorts videos (9:16 aspect ratio) cannot be merged due to the significant aspect ratio difference."
-)
 
 url = st.text_input('Enter YouTube Playlist URL')
 submit = st.button('Submit')
