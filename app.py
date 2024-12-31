@@ -141,9 +141,10 @@ st.title('YouTube Playlist Video Clip Recap Maker')
 st.write("### Instructions:")
 st.markdown("1. Paste your YouTube playlist URL below.\n2. The app will fetch video segments and merge them into one video.")
 
-# Adding the user guide link on the page
+# Adding the user guide link on the page with the option for users to copy the URL
 st.markdown("### User Guide:")
-st.markdown("[Watch the YouTube Playlist Video Clip Recap Maker User Guide](https://www.youtube.com/playlist?list=PL2iAWPjjTfGE_0AfxfiOTv9wwD-7wkztY)")
+user_guide_url = "https://www.youtube.com/playlist?list=PL2iAWPjjTfGE_0AfxfiOTv9wwD-7wkztY"
+st.text_area("Copy the User Guide Link below:", user_guide_url, height=2)
 
 # Add warning for unsupported videos
 st.warning(
