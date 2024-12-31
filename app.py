@@ -138,19 +138,19 @@ for file in os.listdir():
 
 # Streamlit UI and Logic
 st.title('YouTube Playlist Video Clip Recap Maker')
-st.write("### Instructions:")
-st.markdown("1. Paste your YouTube playlist URL below.\n2. The app will fetch video segments and merge them into one video.")
 
 # Adding the user guide link on the page with the option for users to copy the URL
 st.markdown("### User Guide:")
 user_guide_url = "https://www.youtube.com/playlist?list=PL2iAWPjjTfGE_0AfxfiOTv9wwD-7wkztY"
-st.text_area("Copy the User Guide Link below:", user_guide_url, height=2)
+st.text_area("Copy the User Guide Link below:", user_guide_url, height=50)
+
+st.write("### Instructions:")
+st.markdown("1. Paste your YouTube playlist URL below.\n2. The app will fetch video segments and merge them into one video.")
 
 # Add warning for unsupported videos
 st.warning(
-    "**NOTE** :- Ignore the warning messages and scroll down for the result (warning messages due to the inability to access a few videos because of YouTube guidelines)."
+    "**NOTE** :- Ignore the warning messages and scroll down for the result (warning messages due to the inability to access a few videos because of YouTube guidelines). "
 )
-
 url = st.text_input('Enter YouTube Playlist URL')
 submit = st.button('Submit')
 
