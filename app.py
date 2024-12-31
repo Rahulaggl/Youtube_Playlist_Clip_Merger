@@ -143,7 +143,7 @@ st.markdown("1. Paste your YouTube playlist URL below.\n2. The app will fetch vi
 
 # Add warning for unsupported videos
 st.warning(
-    "**NOTE** -- Ignore the warning messages and scroll down for the result (warning messages due to the inability to access a few videos because of YouTube guidelines). "
+    "**NOTE** :- Ignore the warning messages and scroll down for the result (warning messages due to the inability to access a few videos because of YouTube guidelines). "
 )
 url = st.text_input('Enter YouTube Playlist URL')
 submit = st.button('Submit')
