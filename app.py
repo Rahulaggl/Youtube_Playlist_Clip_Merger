@@ -7,25 +7,8 @@ from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi, TranscriptsDisabled
 import dotenv
 import random
-import warnings
 
 dotenv.load_dotenv()
-
-# Suppress warnings
-warnings.filterwarnings("ignore")
-
-# Clean up any existing .mp4 files to free up space silently
-def cleanup_existing_files(directory: str):
-    for filename in os.listdir(directory):
-        if filename.endswith(".mp4"):
-            file_path = os.path.join(directory, filename)
-            try:
-                os.remove(file_path)
-            except Exception:
-                pass  # Fail silently if any error occurs
-
-# Call cleanup function at the start
-cleanup_existing_files(os.getcwd())
 
 # Helper functions
 def extract_youtube_video_id(url: str) -> str:
@@ -106,17 +89,41 @@ def extract_random_segment(video_path: str, duration: int = 5) -> str:
 def merge_video_segments(segment_paths: list, output_path: str) -> str:
     video_clips = []
     try:
-        video_clips = [mp.VideoFileClip(segment) for segment in segment_paths]
-        final_clip = mp.concatenate_videoclips(video_clips)
-        final_clip.write_videofile(output_path, codec='libx264', audio_codec='aac')
-        return output_path
+        # Validate each segment file before loading it
+        for segment in segment_paths:
+            if os.path.exists(segment) and segment.endswith('.mp4'):
+                try:
+                    video_clips.append(mp.VideoFileClip(segment))
+                except IOError as e:
+                    st.warning(f"Error loading video segment {segment}: {e}")
+            else:
+                st.warning(f"Invalid or missing video file: {segment}")
+        
+        if video_clips:
+            final_clip = mp.concatenate_videoclips(video_clips)
+            final_clip.write_videofile(output_path, codec='libx264', audio_codec='aac')
+            return output_path
+        else:
+            st.warning("No valid video clips to merge.")
+            return None
+    except Exception as e:
+        st.warning(f"Error merging video segments: {e}")
+        return None
     finally:
+        # Ensure all clips are closed after processing
         for clip in video_clips:
-            clip.close()  # Ensure all clips are closed
+            clip.close()  # Close the video clips to free up memory
         for segment in segment_paths:
             if os.path.exists(segment):
                 os.remove(segment)  # Clean up temporary segment files
 
+# Clean up old video files
+for file in os.listdir():
+    if file.endswith('.mp4'):
+        try:
+            os.remove(file)  # Deleting old MP4 files to free up space
+        except Exception as e:
+            st.warning(f"Error removing file {file}: {e}")
 # Streamlit UI and Logic
 st.title('YouTube Playlist Video Clip Recap Maker')
 st.write("### Instructions:")
@@ -129,6 +136,8 @@ st.warning(
 
 url = st.text_input('Enter YouTube Playlist URL')
 submit = st.button('Submit')
+
+
 
 if submit and url:
     video_ids = get_playlist_video_ids(url)
@@ -161,3 +170,6 @@ if submit and url:
             st.warning("No valid segments were processed.")
     else:
         st.warning("No videos found in the playlist URL.")
+
+
+
