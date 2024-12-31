@@ -3,8 +3,8 @@
 **Access the Project:**
 
 
-1. **Online Access**:  
-   You can access the project online via the following [link](https://youtubeplaylistclipmerger-ipszpkcedglkhzrkfnhrvb.streamlit.app/).
+1. **Online Access**:  [link](https://youtubeplaylistclipmerger-ipszpkcedglkhzrkfnhrvb.streamlit.app/).
+   You can access the project online via the following 
    
 2. **Offline Access**:  
    To run the project locally, follow the setup instructions below.
