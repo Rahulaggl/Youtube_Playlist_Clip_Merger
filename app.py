@@ -28,7 +28,7 @@ def get_playlist_video_ids(playlist_url: str) -> list:
     match = re.search(r"playlist\?list=([a-zA-Z0-9_-]+)", playlist_url)
     if match:
         playlist_id = match.group(1)
-        youtube = build('youtube', 'v3', developerKey=st.secrets('YOUTUBE_API_KEY'))
+        youtube = build('youtube', 'v3', developerKey=st.secrets['YOUTUBE_API_KEY'])
         video_ids = []
         next_page_token = None
         while True:
